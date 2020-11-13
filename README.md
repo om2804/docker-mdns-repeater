@@ -4,6 +4,8 @@ This image uses Darell Tan's mdns-repeater to bridge/repeat mDNS requests betwee
 
 The intended use of this container is to allow a docker-compose stack running in `net=bridge` mode to be able to communicate with the Docker host's external network.
 
+Image on Docker Hub: https://hub.docker.com/repository/docker/jdbeeler/mdns-repeater
+
 
 ## Using this container
 
