@@ -10,7 +10,7 @@ DOCKER_INTERFACE=$(docker network list | grep "${DOCKER_NETWORK_NAME}" | awk '{p
 
 #BRIDGE_INTERFACES=($(ip addr | grep "state UP" -A2 | awk '/inet/{print $(NF)}' | grep -P '^(?:(?!veth).)*$' | tr '\n' ' '))
 
-./mdns-repeater "${EXTERNAL_INTERFACE}" "br-{$DOCKER_INTERFACE}" -f
+#./mdns-repeater "${EXTERNAL_INTERFACE}" "br-${DOCKER_INTERFACE}" -f
 
-exec mdns-repeater -f ${OPTIONS} ${EXTERNAL_INTERFACE} "br-{$DOCKER_INTERFACE}"
+exec mdns-repeater -f ${OPTIONS} "${EXTERNAL_INTERFACE}" "br-${DOCKER_INTERFACE}"
 
