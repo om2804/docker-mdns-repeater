@@ -13,3 +13,4 @@ DOCKER_INTERFACE=$(docker network list | grep "${DOCKER_NETWORK_NAME}" | awk '{p
 ./mdns-repeater "${EXTERNAL_INTERFACE}" "br-{$DOCKER_INTERFACE}" -f
 
 exec mdns-repeater -f ${OPTIONS} ${EXTERNAL_INTERFACE} "br-{$DOCKER_INTERFACE}"
+

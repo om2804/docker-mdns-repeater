@@ -9,6 +9,7 @@ RUN apk add --no-cache build-base bash \
     && rm -rf /var/cache/apk/* /tmp/*
 
 COPY entrypoint.sh /entrypoint.sh
+RUN chmod a+x entrypoint.sh
 #ENV options="" hostNIC=eth0 dockerNIC=docker_gwbridge
 
 #CMD mdns-repeater -f ${options} ${hostNIC} ${dockerNIC}
