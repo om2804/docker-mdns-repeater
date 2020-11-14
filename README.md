@@ -14,9 +14,9 @@ This container was designed to be used as part of a docker-compose stack. When c
 1. Use docker-compose version 3.5 or later
 2. Ensure that each of the bridged containers are part of the same, named network
 3. Ensure that the network is named in the `networks:` section
-4. Create & link an environment variable file similar to [env.sample](env.sample) to your mdns_reflector image (or set the appropriate environment variables in the stack's configuration)
+4. Create & link an environment variable file similar to [env.sample](env.sample) to your mdns_repeater image (or set the appropriate environment variables in the stack's configuration)
 
-See `mdns_reflector` in the example docker-compose file below for the other attributes necessary to run the container.
+See `mdns_repeater` in the example docker-compose file below for the other attributes necessary to run the container.
 
 There are three environment variables that must be set:
 - **EXTERNAL_INTERFACE** - The interface name of the external interface we want to bridge (e.g. `eth0`, `wlan0`, etc.)
@@ -40,12 +40,12 @@ services:
     networks:
       - walled
 
-  mdns_reflector:
+  mdns_repeater:
     image: jdbeeler/mdns-repeater:latest
     network_mode: "host"
     privileged: true
     env_file:
-      - ./envs/mdns-reflector
+      - ./envs/mdns-repeater
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
