@@ -74,6 +74,7 @@ struct subnet whitelisted_subnets[MAX_SUBNETS];
 void *pkt_data = NULL;
 
 int foreground = 0;
+int verbose = 0;
 int shutdown_flag = 0;
 
 char *pid_file = PIDFILE;
@@ -87,7 +88,7 @@ void log_message(int loglevel, char *fmt_str, ...) {
 	va_end(ap);
 	buf[2047] = 0;
 
-	if (foreground) {
+	if (verbose) {
 		fprintf(stderr, "%s: %s\n", PACKAGE, buf);
 	} else {
 		syslog(loglevel, "%s", buf);
@@ -322,7 +323,8 @@ static void show_help(const char *progname) {
 					"maximum number of interfaces is 5\n"
 					"\n"
 					" flags:\n"
-					"	-f	runs in foreground for debugging\n"
+					"	-f	runs in foreground\n"
+					"	-v	verbose mode (also runs in foreground)\n"
 					"	-b	blacklist subnet (eg. 192.168.1.1/24)\n"
 					"	-w	whitelist subnet (eg. 192.168.1.1/24)\n"
 					"	-p	specifies the pid file path (default: " PIDFILE ")\n"
@@ -390,6 +392,7 @@ static int parse_opts(int argc, char *argv[]) {
 		switch (c) {
 			case 'h': help = 1; break;
 			case 'f': foreground = 1; break;
+			case 'v': verbose = 1; foreground = 1; break;
 			case 'p':
 				if (optarg[0] != '/')
 					log_message(LOG_ERR, "pid file path must be absolute");
@@ -585,7 +588,7 @@ int main(int argc, char *argv[]) {
 				}
 
 				if (!whitelisted_packet) {
-					if (foreground)
+					if (verbose)
 						printf("skipping packet from=%s size=%zd\n", inet_ntoa(fromaddr.sin_addr), recvsize);
 					continue;
 				}
@@ -600,13 +603,13 @@ int main(int argc, char *argv[]) {
 				}
 
 				if (blacklisted_packet) {
-					if (foreground)
+					if (verbose)
 						printf("skipping packet from=%s size=%zd\n", inet_ntoa(fromaddr.sin_addr), recvsize);
 					continue;
 				}
 			}
 
-			if (foreground)
+			if (verbose)
 				printf("data from=%s size=%zd\n", inet_ntoa(fromaddr.sin_addr), recvsize);
 
 			for (j = 0; j < num_socks; j++) {
@@ -614,7 +617,7 @@ int main(int argc, char *argv[]) {
 				if ((fromaddr.sin_addr.s_addr & socks[j].mask.s_addr) == socks[j].net.s_addr)
 					continue;
 
-				if (foreground)
+				if (verbose)
 					printf("repeating data to %s\n", socks[j].ifname);
 
 				// repeat data
