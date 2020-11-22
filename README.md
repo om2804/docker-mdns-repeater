@@ -21,7 +21,7 @@ See `mdns_repeater` in the example docker-compose file below for the other attri
 There are three environment variables that must be set:
 - **EXTERNAL_INTERFACE** - The interface name of the external interface we want to bridge (e.g. `eth0`, `wlan0`, etc.)
 - **DOCKER_NETWORK_NAME** - The name of the named network in the stack (`walled` in the example below)
-
+- **USE_MDNS_REPEATER** - A flag that can be used to disable the application. Intended use case is if we want to disable the repeater from an environment variable (without needing to edit `docker-compose.yml`)
 
 
 ### Example docker-compose file
