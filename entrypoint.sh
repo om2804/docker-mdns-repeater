@@ -1,19 +1,19 @@
 #!/bin/bash
 
-# These are now set in environment variables that are passed in
-#EXTERNAL_INTERFACE="wlan0"
-#DOCKER_NETWORK_NAME="fermentrack"
-#OPTIONS=""
+ifnames=(${INTERFACES})
 
-# This searches the list of docker networks for the network name in order to get the ID, then (below) uses that ID
-# to infer the docker interface name.
-DOCKER_INTERFACE=$(docker network list | grep "${DOCKER_NETWORK_NAME}" | awk '{print $1}')
+# determine interface names for all given docker networks
+for dn in ${DOCKER_NETWORKS}; do
+  ifname=$(docker network list | grep "$dn" | awk '{print $1}')
+  if [[ -z $ifname ]]; then
+    echo "unable to find docker interface for $dn" > /dev/stderr
+  fi
 
-# Below is for future use in case I want to try to auto-detect the external interface
-#NON_VIRTUAL_INTERFACES=($(ip addr | grep "state UP" -A2 | awk '/inet/{print $(NF)}' | grep -P '^(?:(?!veth).)*$' | tr '\n' ' '))
+  ifnames+=("br-$ifname")
+done
 
 if [[ ${USE_MDNS_REPEATER} -eq 1 ]]; then
-  exec mdns-repeater ${OPTIONS} "${EXTERNAL_INTERFACE}" "br-${DOCKER_INTERFACE}"
+  exec mdns-repeater ${OPTIONS} ${ifnames[@]}
 else
   # If the local user has disabled the app, then just sleep forever
   sleep infinity

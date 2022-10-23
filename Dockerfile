@@ -10,8 +10,10 @@ RUN apk add --no-cache build-base bash docker-cli \
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod a+x entrypoint.sh
-#ENV options="" hostNIC=eth0 dockerNIC=docker_gwbridge
 
-#CMD mdns-repeater -f ${options} ${hostNIC} ${dockerNIC}
+ENV USE_MDNS_REPEATER=1 \
+    OPTIONS="" \
+    INTERFACES="eth0" \
+    DOCKER_NETWORKS="net1 net2"
 
 ENTRYPOINT [ "/entrypoint.sh" ]
