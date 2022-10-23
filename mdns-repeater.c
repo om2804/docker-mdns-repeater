@@ -344,7 +344,7 @@ static int parse_opts(int argc, char *argv[]) {
 	int help = 0;
 	struct subnet *ss;
 	char *msg;
-	while ((c = getopt(argc, argv, "hp:b:w:")) != -1) {
+	while ((c = getopt(argc, argv, "hvp:b:w:")) != -1) {
 		switch (c) {
 			case 'h': help = 1; break;
 			case 'v': verbose = 1; break;
