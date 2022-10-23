@@ -13,7 +13,7 @@ DOCKER_INTERFACE=$(docker network list | grep "${DOCKER_NETWORK_NAME}" | awk '{p
 #NON_VIRTUAL_INTERFACES=($(ip addr | grep "state UP" -A2 | awk '/inet/{print $(NF)}' | grep -P '^(?:(?!veth).)*$' | tr '\n' ' '))
 
 if [[ ${USE_MDNS_REPEATER} -eq 1 ]]; then
-  exec mdns-repeater -f ${OPTIONS} "${EXTERNAL_INTERFACE}" "br-${DOCKER_INTERFACE}"
+  exec mdns-repeater ${OPTIONS} "${EXTERNAL_INTERFACE}" "br-${DOCKER_INTERFACE}"
 else
   # If the local user has disabled the app, then just sleep forever
   sleep infinity

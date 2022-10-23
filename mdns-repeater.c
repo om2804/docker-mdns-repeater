@@ -73,7 +73,6 @@ struct subnet whitelisted_subnets[MAX_SUBNETS];
 #define PACKET_SIZE 65536
 void *pkt_data = NULL;
 
-int foreground = 0;
 int verbose = 0;
 int shutdown_flag = 0;
 
@@ -270,61 +269,18 @@ static int write_pidfile() {
 	return 0;
 }
 
-static void daemonize() {
-	pid_t running_pid;
-	pid_t pid = fork();
-	if (pid < 0) {
-		log_message(LOG_ERR, "fork(): %s", strerror(errno));
-		exit(1);
-	}
-
-	// exit parent process
-	if (pid > 0)
-		exit(0);
-
-	// signals
-	signal(SIGCHLD, SIG_IGN);
-	signal(SIGHUP, SIG_IGN);
-	signal(SIGTERM, mdns_repeater_shutdown);
-
-	setsid();
-	umask(0027);
-	chdir("/");
-
-	// close all std fd and reopen /dev/null for them
-	int i;
-	for (i = 0; i < 3; i++) {
-		close(i);
-		if (open("/dev/null", O_RDWR) != i) {
-			log_message(LOG_ERR, "unable to open /dev/null for fd %d", i);
-			exit(1);
-		}
-	}
-
-	// check for pid file
-	running_pid = already_running();
-	if (running_pid != -1) {
-		log_message(LOG_ERR, "already running as pid %d", running_pid);
-		exit(1);
-	} else if (! write_pidfile()) {
-		log_message(LOG_ERR, "unable to write pid file %s", pid_file);
-		exit(1);
-	}
-}
-
 static void show_help(const char *progname) {
 	fprintf(stderr, "mDNS repeater (version " HGVERSION ")\n");
 	fprintf(stderr, "Copyright (C) 2011 Darell Tan\n\n");
 
-	fprintf(stderr, "usage: %s [ -f ] <ifdev> ...\n", progname);
+	fprintf(stderr, "usage: %s [flags] <ifdev> ...\n", progname);
 	fprintf(stderr, "\n"
 					"<ifdev> specifies an interface like \"eth0\"\n"
 					"packets received on an interface is repeated across all other specified interfaces\n"
 					"maximum number of interfaces is 5\n"
 					"\n"
 					" flags:\n"
-					"	-f	runs in foreground\n"
-					"	-v	verbose mode (also runs in foreground)\n"
+					"	-v	verbose mode\n"
 					"	-b	blacklist subnet (eg. 192.168.1.1/24)\n"
 					"	-w	whitelist subnet (eg. 192.168.1.1/24)\n"
 					"	-p	specifies the pid file path (default: " PIDFILE ")\n"
@@ -388,11 +344,10 @@ static int parse_opts(int argc, char *argv[]) {
 	int help = 0;
 	struct subnet *ss;
 	char *msg;
-	while ((c = getopt(argc, argv, "hfp:b:w:")) != -1) {
+	while ((c = getopt(argc, argv, "hp:b:w:")) != -1) {
 		switch (c) {
 			case 'h': help = 1; break;
-			case 'f': foreground = 1; break;
-			case 'v': verbose = 1; foreground = 1; break;
+			case 'v': verbose = 1; break;
 			case 'p':
 				if (optarg[0] != '/')
 					log_message(LOG_ERR, "pid file path must be absolute");
@@ -499,15 +454,11 @@ int main(int argc, char *argv[]) {
 	}
 
 	openlog(PACKAGE, LOG_PID | LOG_CONS, LOG_DAEMON);
-	if (! foreground)
-		daemonize();
-	else {
-		// check for pid file when running in foreground
-		running_pid = already_running();
-		if (running_pid != -1) {
-			log_message(LOG_ERR, "already running as pid %d", running_pid);
-			exit(1);
-		}
+	// check for pid file
+	running_pid = already_running();
+	if (running_pid != -1) {
+		log_message(LOG_ERR, "already running as pid %d", running_pid);
+		exit(1);
 	}
 
 	// create receiving socket
