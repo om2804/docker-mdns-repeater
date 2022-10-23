@@ -87,11 +87,7 @@ void log_message(int loglevel, char *fmt_str, ...) {
 	va_end(ap);
 	buf[2047] = 0;
 
-	if (verbose) {
-		fprintf(stderr, "%s: %s\n", PACKAGE, buf);
-	} else {
-		syslog(loglevel, "%s", buf);
-	}
+	fprintf(stderr, "%s: %s\n", PACKAGE, buf);
 }
 
 static int create_recv_sock() {
